@@ -28,6 +28,10 @@
     </style>
 
     <script>
+      function resetCaptcha() {
+        loadCaptcha(12);
+      }     
+
       function loadJSON(url) {
         var request = new XMLHttpRequest();
         request.open('GET', url, false);
@@ -80,11 +84,11 @@
         console.log(UUID, $("#captcha").prop('answer'));
         clearScreen();
         alert("Your selection was " + loadJSON("captcha/" + UUID + "/" + $("#captcha").prop('answer')));
-        loadCaptcha(12);
+        resetCaptcha();
       }
 
       $(document).ready(function() {
-        loadCaptcha(12);
+        resetCaptcha();
       });
     </script>
   </head>
