@@ -20,8 +20,65 @@
 
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
-    <script>
 
+    <style type="text/css">
+      #captcha .row {
+        padding-top: 25px;
+      }
+    </style>
+
+    <script>
+      function loadJSON(url) {
+        var request = new XMLHttpRequest();
+        request.open('GET', url, false);
+        request.send(null);
+        if (request.status !== 200) {
+          console.log(request.status);
+        }
+        return JSON.parse(request.responseText);
+      }
+
+      function loadCaptcha(size) {
+        $("#captcha .row").remove();
+
+        var data = loadJSON("captcha/" + size);
+        $(".navbar-brand").text("Click the " + data.answer + " to continue.");
+
+        var index = 0;
+        var rows = Math.ceil(size/6);
+        while(rows > 0) {
+          var row = $('<div class="row"></div>');
+          row.prop('answer', data.answer);
+
+          var cols = Math.min(6, size);
+          while(cols > 0) {
+            var cell = $(
+              '<div class="col-md-2"><img src="'
+              + data.list[index].image
+              + '" class="img-responsive" UUID="'
+              + data.list[index].UUID
+              + '"></div>'
+            );
+            row.append(cell);
+
+            index++;
+            size--;
+            cols--;
+          }
+
+          $("#captcha").append(row);
+
+          rows--;
+        }
+      }
+
+      $(document).ready(function() {
+        $("#captcha").on( "click", "img", function(event) {
+          console.log(event);
+        });
+
+        loadCaptcha(12);
+      });
     </script>
   </head>
 
@@ -30,29 +87,11 @@
     <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
       <div class="container">
         <div class="navbar-header">
-          <a class="navbar-brand" href="#">Loading...</a>
+          <a class="navbar-brand" style="cursor:default" href="javascript:console.log('!');">Loading...</a>
         </div>
       </div>
     </div>
 
-    <div class="container" style="padding-top:50px">
-      <div class="row">
-        <div class="col-md-2">a</div>
-        <div class="col-md-2">a</div>
-        <div class="col-md-2">a</div>
-        <div class="col-md-2">a</div>
-        <div class="col-md-2">a</div>
-        <div class="col-md-2">a</div>
-      </div>
-      <div class="row">
-        <div class="col-md-2">a</div>
-        <div class="col-md-2">a</div>
-        <div class="col-md-2">a</div>
-        <div class="col-md-2">a</div>
-        <div class="col-md-2">a</div>
-        <div class="col-md-2">a</div>
-      </div>
-      <hr>
-    </div>
+    <div id="captcha" class="container" style="padding-top:50px"></div>
   </body>
 </html>

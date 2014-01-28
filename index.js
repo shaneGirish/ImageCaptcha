@@ -61,14 +61,13 @@ function pickCaptchaSet(size) {
 	UUID_cache[UUID] = type;
 
 	var captchaSet = {
-		answer: type,
-		list: []
+		answer: type
 	};
 
-	captchaSet.list.push({
+	var list = [{
 		UUID: UUID,
 		image: image
-	});
+	}];
 
 	while(size > 1) {
 		type = categories[_.random(categories.length - 1)];
@@ -77,14 +76,20 @@ function pickCaptchaSet(size) {
 		}
 
 		image = imageDB[type][_.random(imageDB[type].length - 1)];
+
+		if(_.some(list, { 'image': image })) {
+			continue;
+		}
 		
-		captchaSet.list.push({
+		list.push({
 			UUID: uuid.v4(),
 			image: image
 		});
 
 		size--;
 	}
+
+	captchaSet.list = _.shuffle(list);
 
 	return captchaSet;
 }
