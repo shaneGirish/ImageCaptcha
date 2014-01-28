@@ -38,27 +38,31 @@
         return JSON.parse(request.responseText);
       }
 
-      function loadCaptcha(size) {
+      function clearScreen() {
         $("#captcha .row").remove();
+        $(".navbar-brand").text("Loading...");
+      }
 
+      function loadCaptcha(size) {
         var data = loadJSON("captcha/" + size);
         $(".navbar-brand").text("Click the " + data.answer + " to continue.");
+        $("#captcha").prop('answer', data.answer);
 
         var index = 0;
         var rows = Math.ceil(size/6);
         while(rows > 0) {
           var row = $('<div class="row"></div>');
-          row.prop('answer', data.answer);
-
           var cols = Math.min(6, size);
+
           while(cols > 0) {
             var cell = $(
-              '<div class="col-md-2"><img src="'
+              '<a class="col-md-2" href="javascript:imageClickHandler(\'' + data.list[index].UUID + '\');"><img src="'
               + data.list[index].image
               + '" class="img-responsive" UUID="'
               + data.list[index].UUID
               + '"></div>'
             );
+
             row.append(cell);
 
             index++;
@@ -72,11 +76,14 @@
         }
       }
 
-      $(document).ready(function() {
-        $("#captcha").on( "click", "img", function(event) {
-          console.log(event);
-        });
+      function imageClickHandler(UUID) {
+        console.log(UUID, $("#captcha").prop('answer'));
+        clearScreen();
+        alert("Your selection was " + loadJSON("captcha/" + UUID + "/" + $("#captcha").prop('answer')));
+        loadCaptcha(12);
+      }
 
+      $(document).ready(function() {
         loadCaptcha(12);
       });
     </script>
