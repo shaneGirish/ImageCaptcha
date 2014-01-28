@@ -5,7 +5,9 @@ var uuid = require('node-uuid');
 var express = require('express');
 
 var imageDB = {};
-var UUID_cache = {};
+var answers = {};
+// Need to add more security to make sure multiple tries are not allowed.
+// And maybe timeouts
 var app = express();
 
 readImages();
@@ -17,10 +19,10 @@ app.get('/captcha/:UUID/:type', function(req, res){
 	var type = req.params.type;
 	var body = "false";
 
-	if(UUID_cache[UUID] == type) {
+	if(answers[UUID] == type) {
 		body = "true";
 
-		delete UUID_cache[UUID];
+		delete answers[UUID];
 	}
 
 	res.setHeader('Content-Type', 'text/json');
@@ -58,7 +60,7 @@ function pickCaptchaSet(size) {
 	var image = imageDB[type][_.random(imageDB[type].length - 1)];
 	var UUID = uuid.v4();
 
-	UUID_cache[UUID] = type;
+	answers[UUID] = type;
 
 	var captchaSet = {
 		answer: type
