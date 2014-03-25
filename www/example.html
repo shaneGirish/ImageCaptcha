@@ -95,7 +95,83 @@
               </div>
             </div>
 
+            <script>
+              var ImageCaptcha = $.proxy(function() {
+                this.onClick = function(UUID) {
+                  $('.captcha .row .captchaImage img').removeClass('img-selected');
+                  $('input[value="' + UUID + '"]').siblings().addClass('img-selected');
+                  $('input[value="' + UUID + '"]')[0].checked = true;
+                };
+
+                this.checkAnswer = function(UUID) {
+                  return loadJSON("captcha/" + UUID + "/" + $("#imageCaptcha-label").prop('answer'));
+                };
+
+                this.reset = function() {
+                  ImageCaptcha.clear();
+                  ImageCaptcha.load(12);
+                };
+
+                this.clear = function() {
+                  $(".captcha .row").remove();
+                  $("#imageCaptcha-label").text("Loading...");
+                  $("#imageCaptcha-label").prop('answer', "");
+                };
+
+                this.load = function(size) {
+                  var data = loadJSON("captcha/" + size);
+                  $("#imageCaptcha-label").text("Select the " + data.answer);
+                  $("#imageCaptcha-label").prop('answer', data.answer);
+
+                  var index = 0;
+                  var rows = Math.ceil(size/6);
+                  while(rows > 0) {
+                    var row = $('<div class="row"></div>');
+                    var cols = Math.min(6, size);
+
+                    while(cols > 0) {
+                      var cell = $(
+                        '<div class="captchaImage col-md-2"><input type="radio" name="captcha" value="'
+                        + data.list[index].UUID
+                        + '"><img onclick="javascript:ImageCaptcha.onClick(\''
+                        + data.list[index].UUID
+                        + '\');" class="img-thumbnail img-responsive" src="'
+                        + data.list[index].image
+                        + '"></div>'
+                      );
+
+                      row.append(cell);
+
+                      index++;
+                      size--;
+                      cols--;
+                    }
+
+                    $("#entry-marker").after(row);
+
+                    rows--;
+                  }
+                }
+
+                return this;
+              }, {})();
+
+              function loadJSON(url) {
+                var request = new XMLHttpRequest();
+                request.open('GET', url, false);
+                request.send(null);
+                if (request.status !== 200) {
+                  console.log(request.status);
+                }
+                return JSON.parse(request.responseText);
+              }
+            </script>
+
             <style>
+              .captchaImage .img-selected {
+                background-color: #A9A2E0;
+              }
+
               .captchaImage input[type="radio"] {
                 display: none;
               }
@@ -110,62 +186,10 @@
             </style>
 
             <div class="form-group">
-              <label class="col-lg-3 control-label">Are you human ?</label>
+              <label id="imageCaptcha-label" class="col-lg-3 control-label">Loading...</label>
               <div class="col-lg-8 captcha">
-                <input style="display:none" class="row" type="radio" name="captcha" value="1">
-                <div class="row">
-                  <div class="captchaImage col-md-2">
-                    <input type="radio" name="captcha" value="1">
-                    <img src="http://placehold.it/75x75/35d/fff&text=f">
-                  </div>
-                  <div class="captchaImage col-md-2">
-                    <input type="radio" name="captcha" value="1">
-                    <img src="http://placehold.it/75x75/35d/fff&text=f">
-                  </div>
-                  <div class="captchaImage col-md-2">
-                    <input type="radio" name="captcha" value="1">
-                    <img src="http://placehold.it/75x75/35d/fff&text=f">
-                  </div>
-                  <div class="captchaImage col-md-2">
-                    <input type="radio" name="captcha" value="1">
-                    <img src="http://placehold.it/75x75/35d/fff&text=f">
-                  </div>
-                  <div class="captchaImage col-md-2">
-                    <input type="radio" name="captcha" value="1">
-                    <img src="http://placehold.it/75x75/35d/fff&text=f">
-                  </div>
-                  <div class="captchaImage col-md-2">
-                    <input type="radio" name="captcha" value="1">
-                    <img src="http://placehold.it/75x75/35d/fff&text=f">
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="captchaImage col-md-2">
-                    <input type="radio" name="captcha" value="1">
-                    <img src="http://placehold.it/75x75/35d/fff&text=f">
-                  </div>
-                  <div class="captchaImage col-md-2">
-                    <input type="radio" name="captcha" value="1">
-                    <img src="http://placehold.it/75x75/35d/fff&text=f">
-                  </div>
-                  <div class="captchaImage col-md-2">
-                    <input type="radio" name="captcha" value="1">
-                    <img src="http://placehold.it/75x75/35d/fff&text=f">
-                  </div>
-                  <div class="captchaImage col-md-2">
-                    <input type="radio" name="captcha" value="1">
-                    <img src="http://placehold.it/75x75/35d/fff&text=f">
-                  </div>
-                  <div class="captchaImage col-md-2">
-                    <input type="radio" name="captcha" value="1">
-                    <img src="http://placehold.it/75x75/35d/fff&text=f">
-                  </div>
-                  <div class="captchaImage col-md-2">
-                    <input type="radio" name="captcha" value="1">
-                    <img src="http://placehold.it/75x75/35d/fff&text=f">
-                  </div>
-                </div>                
-                <input style="display:none" class="row" type="radio" name="captcha" value="1">
+                <input id="entry-marker" style="display:none" type="radio" name="captcha" value="1">
+                <input style="display:none" type="radio" name="captcha" value="1">
               </div>
             </div>
 
@@ -184,11 +208,13 @@
 
   <script type="text/javascript">
   $(document).ready(function() {
+
+    ImageCaptcha.reset();
+
     // Generate a simple captcha
     function randomNumber(min, max) {
       return Math.floor(Math.random() * (max - min + 1) + min);
     };
-    $('#captchaOperation').html([randomNumber(1, 100), '+', randomNumber(1, 200), '='].join(' '));
 
     $('#defaultForm').bootstrapValidator({
       //        live: 'disabled',
