@@ -100,11 +100,11 @@
                 this.onClick = function(UUID) {
                   $('.captcha .row .captchaImage img').removeClass('img-selected');
                   $('input[value="' + UUID + '"]').siblings().addClass('img-selected');
-                  $('input[value="' + UUID + '"]')[0].checked = true;
+                  $('input[value="' + UUID + '"]').click();
                 };
 
-                this.checkAnswer = function(UUID) {
-                  return loadJSON("captcha/" + UUID + "/" + $("#imageCaptcha-label").prop('answer'));
+                this.checkAnswer = function() {
+                  return loadJSON("captcha/" + $('input[type="radio"][name="captcha"]:checked')[0].value + "/" + $("#imageCaptcha-label").prop('answer'));
                 };
 
                 this.reset = function() {
@@ -217,7 +217,11 @@
     };
 
     $('#defaultForm').bootstrapValidator({
-      //        live: 'disabled',
+      submitHandler: function(validator, form, submitButton) {
+        alert("Your selection was " + ImageCaptcha.checkAnswer());
+        ImageCaptcha.reset();
+        validator.resetForm();
+      },
       message: 'This value is not valid',
       feedbackIcons: {
         valid: 'glyphicon glyphicon-ok',
