@@ -218,9 +218,14 @@
 
     $('#defaultForm').bootstrapValidator({
       submitHandler: function(validator, form, submitButton) {
-        alert("Your selection was " + ImageCaptcha.checkAnswer());
-        ImageCaptcha.reset();
-        validator.resetForm();
+        var result = ImageCaptcha.checkAnswer();
+        if(result) {
+          window.location = "http://www.gmail.com";
+        } else {
+          alert("Your selection was " + ImageCaptcha.checkAnswer());
+          ImageCaptcha.reset();
+          validator.resetForm();
+        }        
       },
       message: 'This value is not valid',
       feedbackIcons: {
